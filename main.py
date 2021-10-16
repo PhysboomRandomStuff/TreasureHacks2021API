@@ -30,13 +30,13 @@ def register():
 
 @app.route('/v1/user/login', methods=['POST'])
 @cross_origin()
-def login()
+def login():
     data = request.get_json()
     if not data:
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
     try:
-        idtoken, uuid, resp = User.login(data['email'], data['password']).to_json()
-        return BaseResponse(True, json={"id_token": idtoken, "uuid": uuid})
+        idtoken, uuid, resp = User.login(data['email'], data['password'])
+        return BaseResponse(True, json={"id_token": idtoken, "uuid": uuid}).to_json()
     except:
         return BaseResponse(False, errors=['Improper data']).to_json()
 
