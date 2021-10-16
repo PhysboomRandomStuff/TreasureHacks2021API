@@ -198,16 +198,16 @@ def uploadToStorage(file, children):
     # Returns Firebase storage path, BaseResponse
     try:
         if file.filename == "":
-            return None, BaseResponse(success=False, errors=['No file selected']).to_json()
+            return None, None, BaseResponse(success=False, errors=['No file selected']).to_json()
         elif file and allowed_file(file.filename):
             if children:
                 path = "/".join(children) + "/" + secure_filename(file.filename)
             else:
                 path = secure_filename(file.filename)
-            storage.child(path).put(file)
-            return path, BaseResponse(success=True)
+            cur_file = storage.child(path).put(file)
+            return storage.child(path).get_url(cur_file['downloadTokens']), path, BaseResponse(success=True)
     except:
-        return None, BaseResponse(success=False)
+        return None, None, BaseResponse(success=False)
 
 
 def sendPasswordReset(email):

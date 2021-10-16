@@ -4,6 +4,7 @@ from firebase_interactor import check_token
 from data_classes.responses import BaseResponse
 from data_classes.user import User
 from data_classes.chat import Chat, Message
+import json
 
 app = Flask(__name__)
 app.secret_key = "fdsjfuiyujew98tcewu,x9freucterycewyrct8eu"
@@ -14,6 +15,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 def check_uid_equivalence(uid, user):
     return uid == user['user_id']
+
 
 def check_chat_allowed(request, cur_chat, data):
     return request.user and cur_chat.users and request.user['user_id'] == data['sender'] and request.user[
@@ -68,6 +70,19 @@ def login():
     except:
         return BaseResponse(False, errors=['Improper data']).to_json()
 
+@app.route('/v1/user/<user>', methods=['POST'])
+@cross_origin()
+@check_token(request)
+def get_user_data(user):
+    try:
+        if not check_uid_equivalence(user, request.user):
+            return BaseResponse(success=False, errors=['Bad authentication']).to_json()
+        cur_user = User.load(user)
+        if cur_user:
+            return BaseResponse(success=True, json=json.loads(cur_user.identity.to_json())).to_json()
+        return BaseResponse(success=False, errors=['Failed to get user data. Perhaps this user is invalid']).to_json()
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
 
 '''
 -------------------------------------------
@@ -87,7 +102,6 @@ Outputs: BaseResponse
 @cross_origin()
 @check_token(request)
 def sendChatMessage(chat):
-
     data = request.get_json()
     if not data:
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
@@ -100,6 +114,7 @@ def sendChatMessage(chat):
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
+
 '''
 Get all chat messages, TODO: Filter
 Inputs: {sender: uuid}, authorization
@@ -107,11 +122,11 @@ Actions: Add message to chat (if it exists) if authorized
 Outputs: BaseResponse
 '''
 
+
 @app.route("/v1/chat/<chat>/messages", methods=['POST'])
 @cross_origin()
 @check_token(request)
 def getChatMessages(chat):
-
     data = request.get_json()
     if not data:
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
@@ -123,6 +138,7 @@ def getChatMessages(chat):
                             errors=["Either you are unauthorized for this chat or this chat doesn't exist"]).to_json()
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)
