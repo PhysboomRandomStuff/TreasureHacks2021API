@@ -5,6 +5,7 @@ from securer import hash
 from data_classes.responses import BaseResponse
 import time
 from datetime import datetime
+import random
 
 
 class Message:
@@ -18,18 +19,19 @@ class Message:
 
 
 class Chat:
-    def __init__(self, users):
+    def __init__(self, users, chat_id=None):
         self.users = users
+        self.chat_id = chat_id or hash("".join(self.users) + str(random.randint(0,1000000)))
 
     def push(self):
-        pushToDB(self.to_json(), ['Chats', hash("".join(self.users))])
+        pushToDB(self.to_json(), ['Chats', self.chat_id])
 
     def to_json(self):
         return json.dumps(self, indent=4, default=lambda o: o.__dict__)
 
     def add_message(self, message):
         try:
-            QueriedList(['Messages', hash("".join(self.users))]).pushData(message.to_json())
+            QueriedList(['Messages', self.chat_id]).pushData(message.to_json())
             return BaseResponse(True)
         except Exception as e:
             return BaseResponse(False, errors=[str(e)])
@@ -42,4 +44,7 @@ class Chat:
 
     @staticmethod
     def decode(obj):
-        return Chat(obj['users'])
+        try:
+            return Chat(obj['users'], obj['chat_id'])
+        except:
+            return Chat([],None)

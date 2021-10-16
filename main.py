@@ -81,21 +81,22 @@ Outputs: BaseResponse
 '''
 
 
-@app.route("/v1/chat/<chat>/send")
+@app.route("/v1/chat/<chat>/send", methods=['POST'])
 @cross_origin()
 @check_token(request)
 def sendChatMessage(chat):
+
     data = request.get_json()
     if not data:
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
     try:
         cur_chat = Chat.load(chat)
-        if request.user and cur_chat.users and request.user in cur_chat.users:
+        if request.user and cur_chat.users and request.user['user_id'] in cur_chat.users:
             return cur_chat.add_message(Message(data['message'], data['sender'])).to_json()
         return BaseResponse(success=False,
                             errors=["Either you are unauthorized for this chat or this chat doesn't exist"]).to_json()
-    except:
-        return BaseResponse(success=False, errors=['Something went wrong']).to_json()
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
 
 
 if __name__ == '__main__':
