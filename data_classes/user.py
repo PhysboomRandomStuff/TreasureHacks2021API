@@ -6,7 +6,7 @@ from data_classes.responses import BaseResponse
 class User:
     def __init__(self, uuid, email, first_name='Anon', last_name='Ymous',
                  profile_pic="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png",
-                 chats=[''], projects_applied=['']):
+                 chats=[''], projects_applied=[''], field_of_study='Science', experience='0 yrs'):
         self.uuid = uuid
         self.email = email
         self.first_name = first_name
@@ -14,6 +14,8 @@ class User:
         self.chats = chats
         self.profile_pic = profile_pic
         self.projects_applied = projects_applied
+        self.field_of_study = field_of_study
+        self.experience = experience
 
     def push(self):
         pushToDB(self.to_json(), ['Users', self.uuid])
@@ -39,7 +41,7 @@ class User:
     def register(email, pw):
         uuid, resp = registerUserEmail(email, pw)
         if resp.success:
-            user = User(uuid, email, "", [], [])
+            user = User(uuid, email)
             user.push()
         return resp
 
@@ -52,6 +54,6 @@ class User:
     def decode(obj):
         try:
             return User(obj['uuid'], obj['email'], obj['first_name'], obj['last_name'], obj['profile_pic'],
-                        obj['chats'], obj['projects_applied'])
+                        obj['chats'], obj['projects_applied'], obj['field_of_study'], obj['experience'])
         except:
             return None
