@@ -103,6 +103,21 @@ def patch_user_data(user):
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
+@app.route('/v1/user/<user>/upload-profile', methods=['POST'])
+@cross_origin()
+@check_token(request)
+def upload_profile_pic(user):
+    try:
+        if not check_uid_equivalence(user, request.user):
+            return BaseResponse(False, errors=['Bad Authentication']).to_json()
+        file=request.files['profile-pic']
+        cur_user = User.load(user)
+        return cur_user.change_profile_pic(file).to_json()
+    except Exception as e:
+        return BaseResponse(False, errors=[str(e)])
+
+
+
 
 '''
 -------------------------------------------

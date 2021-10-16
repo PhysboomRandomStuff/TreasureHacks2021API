@@ -34,7 +34,7 @@ def noquote(s, safe=None):
 
 pyrebase.pyrebase.quote = noquote
 
-ALLOWED_EXTENSIONS = ['png', 'jpg', 'pdf']  # For legal document upload
+ALLOWED_EXTENSIONS = ['png', 'jpg', 'pdf']
 
 cred = credentials.Certificate(SERVICE_ACCOUNT)
 firebase = firebase_admin.initialize_app(cred)
