@@ -36,7 +36,9 @@ def login():
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
     try:
         idtoken, uuid, resp = User.login(data['email'], data['password'])
-        return BaseResponse(True, json={"id_token": idtoken, "uuid": uuid}).to_json()
+        if resp.success:
+            return BaseResponse(True, json={"id_token": idtoken, "uuid": uuid}).to_json()
+        return resp.to_json()
     except:
         return BaseResponse(False, errors=['Improper data']).to_json()
 
