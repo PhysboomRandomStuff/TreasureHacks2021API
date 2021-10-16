@@ -57,7 +57,7 @@ def verify_token(token):
         return False, None  # ID token invalid
 
 
-def check_token(request, admin_overwrite=True):
+def check_token(request):
     def check_token_decorator(f):
         @wraps(f)
         def wrap(*args, **kwargs):
