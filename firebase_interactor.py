@@ -5,7 +5,7 @@ from data_classes.responses import BaseResponse
 import firebase_admin
 from firebase_admin import credentials, auth
 from werkzeug.utils import secure_filename
-from securer import Securer
+from securer import hash
 
 firebaseconfig = {  # The config for FB, this is not private info
     "apiKey": "AIzaSyDuqjzjQ4IoN5RHq2ltBEHNnMLkhPbzjcw",
@@ -48,18 +48,14 @@ def check_token(request, admin_overwrite=True):
     def check_token_decorator(f):
         @wraps(f)
         def wrap(*args, **kwargs):
-            if not (admin_overwrite and Securer.checkAdminHeaders(request)):
-                if not request.headers.get('authorization'):
-                    return BaseResponse(False, errors=['No token provided']).to_json()
-                try:
-                    user = auth.verify_id_token(request.headers['authorization'])
-                    request.user = user
+            if not request.headers.get('authorization'):
+                return BaseResponse(False, errors=['No token provided']).to_json()
+            try:
+                user = auth.verify_id_token(request.headers['authorization'])
+                request.user = user
 
-                except:
-                    return BaseResponse(False, errors=['Invalid token provided']).to_json()
-            else:
-                request.user = {
-                    "user_id": None}  # For admin overwriting purposes, we need request.user to contain some user thing
+            except:
+                return BaseResponse(False, errors=['Invalid token provided']).to_json()
             return f(*args, **kwargs)
 
         return wrap
