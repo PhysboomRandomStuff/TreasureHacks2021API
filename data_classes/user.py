@@ -39,7 +39,7 @@ class User:
     def register(email, pw):
         uuid, resp = registerUserEmail(email, pw)
         if resp.success:
-            user = User(uuid, email, "", [], [])
+            user = User(uuid, email)
             user.push()
         return resp
 

@@ -5,6 +5,7 @@ from data_classes.responses import BaseResponse
 from data_classes.user import User
 from data_classes.chat import Chat, Message
 import json
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = "fdsjfuiyujew98tcewu,x9freucterycewyrct8eu"
@@ -70,16 +71,19 @@ def login():
     except:
         return BaseResponse(False, errors=['Improper data']).to_json()
 
+
+'''
+Get public user data.
+Input: User
+Output: BaseResponse w/ public user data
+'''
 @app.route('/v1/user/<user>', methods=['POST'])
 @cross_origin()
-@check_token(request)
 def get_user_data(user):
     try:
-        if not check_uid_equivalence(user, request.user):
-            return BaseResponse(success=False, errors=['Bad authentication']).to_json()
         cur_user = User.load(user)
         if cur_user:
-            return BaseResponse(success=True, json=json.loads(cur_user.identity.to_json())).to_json()
+            return BaseResponse(success=True, json=json.loads(cur_user.to_json())).to_json()
         return BaseResponse(success=False, errors=['Failed to get user data. Perhaps this user is invalid']).to_json()
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
@@ -108,7 +112,7 @@ def sendChatMessage(chat):
     try:
         cur_chat = Chat.load(chat)
         if check_chat_allowed(request, cur_chat, data):
-            return cur_chat.add_message(Message(data['message'], data['sender'])).to_json()
+            return cur_chat.add_message(Message(data['message'], data['sender'], int(datetime.now().timestamp()))).to_json()
         return BaseResponse(success=False,
                             errors=["Either you are unauthorized for this action or this chat doesn't exist"]).to_json()
     except Exception as e:
