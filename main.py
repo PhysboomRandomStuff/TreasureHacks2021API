@@ -6,7 +6,7 @@ from data_classes.user import User
 from data_classes.responses import BaseResponse
 
 app = Flask(__name__)
-app.secret_key = os.environ['FLASK_SECRET_KEY']
+app.secret_key = "fdsjfuiyujew98tcewu,x9freucterycewyrct8eu"
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -22,6 +22,7 @@ def register():
     data = request.get_json()
     if not data:
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
+    return User.register(data['email'], data['password']).to_json()
     try:
         return User.register(data['email'], data['password']).to_json()
     except:
