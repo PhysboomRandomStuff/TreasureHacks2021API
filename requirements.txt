@@ -1,0 +1,4 @@
+pyrebase
+firebase-admin
+flask
+flask-cors
