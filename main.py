@@ -12,10 +12,12 @@ cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 
-def check_uid_equivalence(uid, user, request):
-    if uid == user['user_id']:
-        return True
-    return False
+def check_uid_equivalence(uid, user):
+    return uid == user['user_id']
+
+def check_chat_allowed(request, cur_chat, data):
+    return request.user and cur_chat.users and request.user['user_id'] == data['sender'] and request.user[
+        'user_id'] in cur_chat.users
 
 
 '''
@@ -91,13 +93,36 @@ def sendChatMessage(chat):
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
     try:
         cur_chat = Chat.load(chat)
-        if request.user and cur_chat.users and request.user['user_id'] in cur_chat.users:
+        if check_chat_allowed(request, cur_chat, data):
             return cur_chat.add_message(Message(data['message'], data['sender'])).to_json()
+        return BaseResponse(success=False,
+                            errors=["Either you are unauthorized for this action or this chat doesn't exist"]).to_json()
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+'''
+Get all chat messages, TODO: Filter
+Inputs: {sender: uuid}, authorization
+Actions: Add message to chat (if it exists) if authorized
+Outputs: BaseResponse
+'''
+
+@app.route("/v1/chat/<chat>/messages", methods=['POST'])
+@cross_origin()
+@check_token(request)
+def getChatMessages(chat):
+
+    data = request.get_json()
+    if not data:
+        return BaseResponse(success=False, errors=["No data sent."]).to_json()
+    try:
+        cur_chat = Chat.load(chat)
+        if check_chat_allowed(request, cur_chat, data):
+            return cur_chat.get_messages()
         return BaseResponse(success=False,
                             errors=["Either you are unauthorized for this chat or this chat doesn't exist"]).to_json()
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

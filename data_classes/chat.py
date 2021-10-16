@@ -21,7 +21,7 @@ class Message:
 class Chat:
     def __init__(self, users, chat_id=None):
         self.users = users
-        self.chat_id = chat_id or hash("".join(self.users) + str(random.randint(0,1000000)))
+        self.chat_id = chat_id or hash("".join(self.users) + str(random.randint(0, 1000000)))
 
     def push(self):
         pushToDB(self.to_json(), ['Chats', self.chat_id])
@@ -36,6 +36,11 @@ class Chat:
         except Exception as e:
             return BaseResponse(False, errors=[str(e)])
 
+    def get_messages(self):
+        try:
+            return BaseResponse(True, json=json.loads(json.dumps(QueriedList.fetch(['Messages', self.chat_id], {}).to_json())))
+        except Exception as e:
+            return BaseResponse(False, errors=[str(e)])
 
     @staticmethod
     def load(chat_id):
@@ -47,4 +52,4 @@ class Chat:
         try:
             return Chat(obj['users'], obj['chat_id'])
         except:
-            return Chat([],None)
+            return Chat([], None)
