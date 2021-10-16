@@ -44,7 +44,11 @@ def register():
     if not data:
         return BaseResponse(success=False, errors=["No data sent."]).to_json()
     try:
-        return User.register(data['email'], data['password']).to_json()
+        try:
+            user_data_init = data['user_data']
+        except:
+            user_data_init = None
+        return User.register(data['email'], data['password'], user_data_init).to_json()
     except:
         return BaseResponse(False, errors=['Improper data']).to_json()
 

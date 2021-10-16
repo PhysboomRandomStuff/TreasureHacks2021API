@@ -57,10 +57,12 @@ class User:
         return loginEmail(email, pw)
 
     @staticmethod
-    def register(email, pw):
+    def register(email, pw, obj=None):
         uuid, resp = registerUserEmail(email, pw)
         if resp.success:
             user = User(uuid, email)
+            if obj:
+                user.update(obj)
             user.push()
         return resp
 
