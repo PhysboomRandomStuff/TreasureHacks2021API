@@ -88,6 +88,22 @@ def get_user_data(user):
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
+@app.route('/v1/user/<user>', methods=['PATCH'])
+@cross_origin()
+@check_token(request)
+def patch_user_data(user):
+    try:
+        if not check_uid_equivalence(user, request.user):
+            return BaseResponse(False, errors=['Bad Authentication']).to_json()
+        data = request.get_json()
+        cur_user = User.load(user)
+        cur_user.update(data)
+        cur_user.push()
+        return BaseResponse(True).to_json()
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+
 '''
 -------------------------------------------
 CHAT METHODS

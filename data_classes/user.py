@@ -17,6 +17,25 @@ class User:
         self.field_of_study = field_of_study
         self.experience = experience
 
+    def update(self, data):
+        try:
+            self.first_name = data['first_name']
+        except KeyError:
+            pass
+        try:
+            self.last_name = data['last_name']
+        except KeyError:
+            pass
+        try:
+            self.field_of_study = data['field_of_study']
+        except KeyError:
+            pass
+        try:
+            self.experience = data['experience']
+        except KeyError:
+            pass
+
+
     def push(self):
         pushToDB(self.to_json(), ['Users', self.uuid])
 
