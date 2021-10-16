@@ -16,7 +16,8 @@ class User:
 
   @staticmethod
   def login(email, pw):
-      idtoken, uuid, resp = loginEmail(email, pw)
+      return loginEmail(email, pw)
+
 
   @staticmethod
   def register(email, pw):
