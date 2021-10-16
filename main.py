@@ -133,7 +133,7 @@ def getChatMessages(chat):
     try:
         cur_chat = Chat.load(chat)
         if check_chat_allowed(request, cur_chat, data):
-            return cur_chat.get_messages()
+            return cur_chat.get_messages().to_json()
         return BaseResponse(success=False,
                             errors=["Either you are unauthorized for this chat or this chat doesn't exist"]).to_json()
     except Exception as e:

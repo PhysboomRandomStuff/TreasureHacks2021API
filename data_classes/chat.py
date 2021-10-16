@@ -38,7 +38,7 @@ class Chat:
 
     def get_messages(self):
         try:
-            return BaseResponse(True, json=json.loads(json.dumps(QueriedList.fetch(['Messages', self.chat_id], {}).to_json())))
+            return BaseResponse(True, json=json.loads(QueriedList.fetch(['Messages', self.chat_id], {}).to_json()))
         except Exception as e:
             return BaseResponse(False, errors=[str(e)])
 
