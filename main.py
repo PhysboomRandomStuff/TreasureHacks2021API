@@ -1,6 +1,6 @@
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
-from firebase_interactor import check_token
+from firebase_interactor import check_token, getFromDB
 from data_classes.responses import BaseResponse
 from data_classes.user import User
 from data_classes.chat import Chat, Message
@@ -119,6 +119,17 @@ def upload_profile_pic(user):
         return cur_user.change_profile_pic(file).to_json()
     except Exception as e:
         return BaseResponse(False, errors=[str(e)])
+
+@app.route('/v1/user', methods=['POST'])
+@cross_origin()
+@check_token(request)
+def get_all_users():
+    try:
+        users = getFromDB(['Users'])
+        return BaseResponse(True, json=json.loads(json.dumps(users))).to_json()
+    except Exception as e:
+        return BaseResponse(False, errors=[str(e)])
+
 
 
 
