@@ -21,7 +21,7 @@ class Message:
 class Chat:
     def __init__(self, users, chat_id=None):
         self.users = users
-        self.chat_id = chat_id or hash("".join(self.users) + str(random.randint(0, 1000000)))
+        self.chat_id = chat_id or hash("".join(self.users))
 
     def push(self):
         pushToDB(self.to_json(), ['Chats', self.chat_id])
