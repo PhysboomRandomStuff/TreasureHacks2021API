@@ -224,7 +224,7 @@ RESEARCH PROJECT METHODS
 
 '''
 Create new project
-Inputs: {sender: uuid}, authorization
+Inputs: {sender: uuid, title: str, description: str}, authorization
 Actions: Create project
 Outputs: Project ID
 '''
@@ -253,6 +253,27 @@ def getResearchProject(project):
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
+@app.route('/v1/project', methods=['POST'])
+@cross_origin()
+def get_all_projects():
+    try:
+        projects = getFromDB(['ResearchProjects'])
+        return BaseResponse(True, json=json.loads(json.dumps(projects))).to_json()
+    except Exception as e:
+        return BaseResponse(False, errors=[str(e)])
+
+
+'''
+Create new project
+Inputs: {sender: uuid, message: message}, authorization
+Actions: Create project
+Outputs: Project ID
+'''
+@app.route('/v1/project/<project>/apply')
+@cross_origin()
+@check_token(request)
+def apply_for_project():
+    pass
 
 
 
