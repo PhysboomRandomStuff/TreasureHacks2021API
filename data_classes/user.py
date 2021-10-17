@@ -1,7 +1,7 @@
 import json
 from firebase_interactor import pushToDB, loginEmail, registerUserEmail, getFromDB, uploadToStorage
 from data_classes.responses import BaseResponse
-
+from email_sender import EmailSender
 
 class User:
     def __init__(self, uuid, email, first_name='Anon', last_name='Ymous',
@@ -35,6 +35,10 @@ class User:
         except KeyError:
             pass
 
+    def add_projects_applied(self, proj):
+        self.projects_applied.append(proj)
+        email = EmailSender()
+        email.send_email(self.email, "You have successfully applied for project# " + proj + ". The project leader has been notified")
 
     def push(self):
         pushToDB(self.to_json(), ['Users', self.uuid])

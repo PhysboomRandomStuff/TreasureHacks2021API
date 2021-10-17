@@ -6,6 +6,7 @@ from data_classes.user import User
 from data_classes.chat import Chat, Message
 from data_classes.research_project import ResearchProject
 import json
+from email_sender import EmailSender
 from datetime import datetime
 import os
 
@@ -261,20 +262,38 @@ def get_all_projects():
         projects = getFromDB(['ResearchProjects'])
         return BaseResponse(True, json=json.loads(json.dumps(projects))).to_json()
     except Exception as e:
-        return BaseResponse(False, errors=[str(e)])
+        return BaseResponse(False, errors=[str(e)]).to_json()
 
 
 '''
-Create new project
+Apply for a project
 Inputs: {sender: uuid, message: message}, authorization
-Actions: Create project
-Outputs: Project ID
+Actions: Send email to project head
+Outputs: BaseResponse
 '''
 @app.route('/v1/project/<project>/apply', methods=['POST'])
 @cross_origin()
 @check_token(request)
-def apply_for_project():
-    pass
+def apply_for_project(project):
+    try:
+        data = request.get_json()
+        if not data:
+            return BaseResponse(success=False, errors=["No data sent."]).to_json()
+        if not data['sender'] == request.user['user_id']:
+            return BaseResponse(False, errors=['Bad Authentication']).to_json()
+        cur_project = ResearchProject.load(project)
+        if not cur_project.user_created:
+            return BaseResponse(False, errors=["Project not found"]).to_json()
+        sender_user = User.load(data['sender'])
+        email_resp = cur_project.apply(sender_user, data['message'])
+
+        if not email_resp.success:
+            return email_resp.to_json()
+        sender_user.add_projects_applied(project)
+        sender_user.push()
+        return BaseResponse(True).to_json()
+    except Exception as e:
+        return BaseResponse(False, errors=[str(e)]).to_json()
 
 
 
