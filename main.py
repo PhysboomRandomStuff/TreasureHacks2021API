@@ -4,6 +4,7 @@ from firebase_interactor import check_token, getFromDB
 from data_classes.responses import BaseResponse
 from data_classes.user import User
 from data_classes.chat import Chat, Message
+from data_classes.research_project import ResearchProject
 import json
 from datetime import datetime
 
@@ -213,6 +214,65 @@ def createOrGetChat():
             return BaseResponse(False, errors=["Not allowed."])
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+'''
+-------------------------------------------
+RESEARCH PROJECT METHODS
+-------------------------------------------
+'''
+
+'''
+Create new project
+Inputs: {sender: uuid, title: str, description: str}, authorization
+Actions: Create project
+Outputs: Project ID
+'''
+@app.route('/v1/project/new')
+@cross_origin()
+@check_token(request)
+def createResearchProject():
+    try:
+        data = request.get_json()
+        if not data['sender'] == request.user['user_id']:
+            return BaseResponse(success=False, errors=["No data sent."]).to_json()
+        project = ResearchProject(data['sender'], data['title'], data['description'], None, int(datetime.now().timestamp()))
+        project.push()
+        return BaseResponse(True, json=project.project_id).to_json()
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+@app.route('/v1/project/<project>')
+@cross_origin()
+def getResearchProject(project):
+    try:
+        project = ResearchProject.load(project)
+        if project.project_id:
+            return BaseResponse(True, json=json.loads(project.to_json())).to_json()
+        return BaseResponse(False, errors=["Project not found"])
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+@app.route('/v1/project', methods=['POST'])
+@cross_origin()
+def get_all_projects():
+    try:
+        projects = getFromDB(['ResearchProjects'])
+        return BaseResponse(True, json=json.loads(json.dumps(projects))).to_json()
+    except Exception as e:
+        return BaseResponse(False, errors=[str(e)])
+
+
+'''
+Create new project
+Inputs: {sender: uuid, message: message}, authorization
+Actions: Create project
+Outputs: Project ID
+'''
+@app.route('/v1/project/<project>/apply')
+@cross_origin()
+@check_token(request)
+def apply_for_project():
+    pass
 
 
 
