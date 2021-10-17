@@ -7,9 +7,10 @@ from data_classes.chat import Chat, Message
 from data_classes.research_project import ResearchProject
 import json
 from datetime import datetime
+import os
 
 app = Flask(__name__)
-app.secret_key = "fdsjfuiyujew98tcewu,x9freucterycewyrct8eu"
+app.secret_key = os.environ["FLASK_SECRET_KEY"]
 
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -228,7 +229,7 @@ Inputs: {sender: uuid, title: str, description: str}, authorization
 Actions: Create project
 Outputs: Project ID
 '''
-@app.route('/v1/project/new')
+@app.route('/v1/project/new', methods=['POST'])
 @cross_origin()
 @check_token(request)
 def createResearchProject():
@@ -242,7 +243,7 @@ def createResearchProject():
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
-@app.route('/v1/project/<project>')
+@app.route('/v1/project/<project>', methods=['POST'])
 @cross_origin()
 def getResearchProject(project):
     try:
@@ -269,7 +270,7 @@ Inputs: {sender: uuid, message: message}, authorization
 Actions: Create project
 Outputs: Project ID
 '''
-@app.route('/v1/project/<project>/apply')
+@app.route('/v1/project/<project>/apply', methods=['POST'])
 @cross_origin()
 @check_token(request)
 def apply_for_project():
