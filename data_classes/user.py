@@ -3,6 +3,7 @@ from firebase_interactor import pushToDB, loginEmail, registerUserEmail, getFrom
 from imgur_interactor import ImgurInteractor
 from data_classes.responses import BaseResponse
 from email_sender import EmailSender
+import os
 
 class User:
     def __init__(self, uuid, email, first_name='Anon', last_name='Ymous',
@@ -54,6 +55,7 @@ class User:
             with open(path, 'wb') as f:
                 f.write(profile_pic.read())
             resp = ImgurInteractor().upload(path)
+            os.remove(path)
             if resp.success:
                 self.profile_pic = resp.json['link']
                 self.push()
