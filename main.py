@@ -189,6 +189,35 @@ def getChatMessages(chat):
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
+'''
+Create new chat or return existing chat id
+Inputs: {sender: uuid, other: uuid}, authorization
+Actions: Create chat if necessary
+Outputs: Chat ID
+'''
+
+@app.route('/v1/chat/id', methods=['POST'])
+@cross_origin()
+@check_token(request)
+def createOrGetChat():
+    try:
+        data = request.get_json()
+        if not data:
+            return BaseResponse(success=False, errors=["No data sent."]).to_json()
+        chat = Chat.load_with_users([request.user['user_id'], data['other']])
+        if chat.chat_id and check_chat_allowed(request, chat, data):
+            return BaseResponse(True, json={'chat_id': chat.chat_id})
+        elif not chat.chat_id:
+            chat = Chat([request.user['user_id'], data['other']])
+            return BaseResponse(True, json={'chat_id': chat.chat_id})
+        else:
+            return BaseResponse(False, errors=["Not allowed."])
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=80)

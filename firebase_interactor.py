@@ -204,6 +204,7 @@ def uploadToStorage(file, children):
                 path = "/".join(children) + "/" + secure_filename(file.filename)
             else:
                 path = secure_filename(file.filename)
+
             cur_file = storage.child(path).put(file)
             return storage.child(path).get_url(cur_file['downloadTokens']), path, BaseResponse(success=True)
     except:

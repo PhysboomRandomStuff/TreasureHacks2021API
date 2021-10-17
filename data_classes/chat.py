@@ -43,6 +43,9 @@ class Chat:
             return BaseResponse(False, errors=[str(e)])
 
     @staticmethod
+    def load_with_users(users):
+        return Chat.load(hash("".join(users)))
+    @staticmethod
     def load(chat_id):
         chat_data = json.loads(json.dumps(getFromDB(['Chats', chat_id])))
         return Chat.decode(chat_data)
