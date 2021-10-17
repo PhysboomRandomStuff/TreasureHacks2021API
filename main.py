@@ -4,6 +4,7 @@ from firebase_interactor import check_token, getFromDB
 from data_classes.responses import BaseResponse
 from data_classes.user import User
 from data_classes.chat import Chat, Message
+from data_classes.research_project import ResearchProject
 import json
 from datetime import datetime
 
@@ -215,6 +216,31 @@ def createOrGetChat():
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
+'''
+-------------------------------------------
+RESEARCH PROJECT METHODS
+-------------------------------------------
+'''
+
+'''
+Create new chat or return existing chat id
+Inputs: {sender: uuid}, authorization
+Actions: Create project
+Outputs: Project ID
+'''
+@app.route('/v1/project/new')
+@cross_origin
+@check_token(request)
+def createResearchProject():
+    try:
+        data = request.get_json()
+        if not data['sender'] == request.user['user_id']:
+            return BaseResponse(success=False, errors=["No data sent."]).to_json()
+        project = ResearchProject(data['sender'], data['title'], data['description'], None, int(datetime.now().timestamp()))
+        project.push()
+        return BaseResponse(True, json=project.project_id).to_json()
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
 
 
 
