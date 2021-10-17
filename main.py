@@ -203,14 +203,15 @@ def createOrGetChat():
         data = request.get_json()
         if not data:
             return BaseResponse(success=False, errors=["No data sent."]).to_json()
-        chat = Chat.load_with_users([request.user['user_id'], data['other']])
-        if chat.chat_id and check_chat_allowed(request, chat, data):
-            return BaseResponse(True, json={'chat_id': chat.chat_id})
-        elif not chat.chat_id:
-            chat = Chat([request.user['user_id'], data['other']])
-            return BaseResponse(True, json={'chat_id': chat.chat_id})
+        chat = Chat.load_with_users(sorted([request.user['user_id'], data['other']]))
+        if chat.exists and check_chat_allowed(request, chat, data):
+            return BaseResponse(True, json={'chat_id': chat.chat_id}).to_json()
+        elif not chat.exists:
+            chat = Chat(sorted([request.user['user_id'], data['other']]))
+            chat.push()
+            return BaseResponse(True, json={'chat_id': chat.chat_id}).to_json()
         else:
-            return BaseResponse(False, errors=["Not allowed."])
+            return BaseResponse(False, errors=["Not allowed."]).to_json()
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
 
