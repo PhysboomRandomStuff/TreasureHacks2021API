@@ -3,3 +3,4 @@ firebase_admin
 requests >= 2.22.0
 flask
 flask-cors
+imgurpython

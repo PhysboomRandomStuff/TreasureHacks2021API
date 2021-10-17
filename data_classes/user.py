@@ -1,7 +1,9 @@
 import json
-from firebase_interactor import pushToDB, loginEmail, registerUserEmail, getFromDB, uploadToStorage
+from firebase_interactor import pushToDB, loginEmail, registerUserEmail, getFromDB
+from imgur_interactor import ImgurInteractor
 from data_classes.responses import BaseResponse
 from email_sender import EmailSender
+import os
 
 class User:
     def __init__(self, uuid, email, first_name='Anon', last_name='Ymous',
@@ -48,10 +50,16 @@ class User:
 
     def change_profile_pic(self, profile_pic, id_token):
         try:
-            filepath, dbpath, resp = uploadToStorage(profile_pic, [self.uuid, 'profile'], id_token)
+            #filepath, dbpath, resp = uploadToStorage(profile_pic, [self.uuid, 'profile'], id_token)
+            path = '/home/TreasureHacks2021/mysite/TreasureHacks2021API/' + self.uuid + '_profile_pic.png'
+            with open(path, 'wb') as f:
+                f.write(profile_pic.read())
+            resp = ImgurInteractor().upload(path)
+            os.remove(path)
             if resp.success:
-                self.profile_pic = filepath
+                self.profile_pic = resp.json['link']
                 self.push()
+                return BaseResponse(True)
             return resp
         except Exception as e:
             return BaseResponse(False, errors=[str(e)])
