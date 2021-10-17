@@ -194,7 +194,7 @@ def getFromDB(children, query_dict={}):
         return None
 
 
-def uploadToStorage(file, children):
+def uploadToStorage(file, children, user_id=""):
     # Returns Firebase storage path, BaseResponse
     try:
         if file.filename == "":
@@ -204,11 +204,10 @@ def uploadToStorage(file, children):
                 path = "/".join(children) + "/" + secure_filename(file.filename)
             else:
                 path = secure_filename(file.filename)
-
-            cur_file = storage.child(path).put(file)
+            cur_file = storage.child(path).put(file, None)
             return storage.child(path).get_url(cur_file['downloadTokens']), path, BaseResponse(success=True)
-    except:
-        return None, None, BaseResponse(success=False)
+    except Exception as e:
+        return None, None, BaseResponse(success=False, errors=[str(e)])
 
 
 def sendPasswordReset(email):

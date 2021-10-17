@@ -114,15 +114,14 @@ def upload_profile_pic(user):
     try:
         if not check_uid_equivalence(user, request.user):
             return BaseResponse(False, errors=['Bad Authentication']).to_json()
-        file=request.files['profile-pic']
+        file=request.files['profile_pic']
         cur_user = User.load(user)
-        return cur_user.change_profile_pic(file).to_json()
+        return cur_user.change_profile_pic(file, None).to_json()
     except Exception as e:
-        return BaseResponse(False, errors=[str(e)])
+        return BaseResponse(False, errors=[str(e)]).to_json()
 
 @app.route('/v1/user', methods=['POST'])
 @cross_origin()
-@check_token(request)
 def get_all_users():
     try:
         users = getFromDB(['Users'])
