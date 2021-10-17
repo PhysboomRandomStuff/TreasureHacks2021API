@@ -42,9 +42,9 @@ class User:
     def to_json(self):
         return json.dumps(self, indent=4, default=lambda o: o.__dict__)
 
-    def change_profile_pic(self, profile_pic):
+    def change_profile_pic(self, profile_pic, id_token):
         try:
-            filepath, dbpath, resp = uploadToStorage(profile_pic, [self.uuid, 'profile'])
+            filepath, dbpath, resp = uploadToStorage(profile_pic, [self.uuid, 'profile'], id_token)
             if resp.success:
                 self.profile_pic = filepath
                 self.push()
