@@ -19,9 +19,10 @@ class Message:
 
 
 class Chat:
-    def __init__(self, users, chat_id=None):
+    def __init__(self, users, exists=True, chat_id=None):
         self.users = users
         self.chat_id = chat_id or hash("".join(self.users))
+        self.exists=exists
 
     def push(self):
         pushToDB(self.to_json(), ['Chats', self.chat_id])
@@ -45,6 +46,7 @@ class Chat:
     @staticmethod
     def load_with_users(users):
         return Chat.load(hash("".join(users)))
+
     @staticmethod
     def load(chat_id):
         chat_data = json.loads(json.dumps(getFromDB(['Chats', chat_id])))
@@ -53,6 +55,6 @@ class Chat:
     @staticmethod
     def decode(obj):
         try:
-            return Chat(obj['users'], obj['chat_id'])
+            return Chat(obj['users'], obj['exists'], obj['chat_id'])
         except:
-            return Chat([], None)
+            return Chat([], False, None)
