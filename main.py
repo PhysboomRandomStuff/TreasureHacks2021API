@@ -223,13 +223,13 @@ RESEARCH PROJECT METHODS
 '''
 
 '''
-Create new chat or return existing chat id
+Create new project
 Inputs: {sender: uuid}, authorization
 Actions: Create project
 Outputs: Project ID
 '''
 @app.route('/v1/project/new')
-@cross_origin
+@cross_origin()
 @check_token(request)
 def createResearchProject():
     try:
@@ -241,6 +241,19 @@ def createResearchProject():
         return BaseResponse(True, json=project.project_id).to_json()
     except Exception as e:
         return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+@app.route('/v1/project/<project>')
+@cross_origin()
+def getResearchProject(project):
+    try:
+        project = ResearchProject.load(project)
+        if project.project_id:
+            return BaseResponse(True, json=json.loads(project.to_json())).to_json()
+        return BaseResponse(False, errors=["Project not found"])
+    except Exception as e:
+        return BaseResponse(success=False, errors=[str(e)]).to_json()
+
+
 
 
 
